@@ -1,0 +1,78 @@
+def cal_evaluation(classifier, conf_matrix):
+    tn = conf_matrix[0][0]
+    fp = conf_matrix[0][1]
+    fn = conf_matrix[1][0]
+    tp = conf_matrix[1][1]
+    accuracy  = (tp + tn) / (tp + fp + fn + tn + 0.0)
+    precision = tp / (tp + fp + 0.0)
+    recall = tp / (tp + fn + 0.0)
+    print ()
+    print (classifier)
+    print ("Accuracy is: " + str(accuracy.round(3)))
+    print ("precision is: " + str(precision.round(3)))
+    print ("recall is: " + str(recall.round(3)))
+    
+
+# CNN predicted classes
+cnn_preds = np.empty(0)
+cnn_true = np.empty(0)
+with torch.no_grad():
+    for i, (inputs, classes) in enumerate(dataloaders['test']):
+        inputs = inputs.to(device)
+        classes = classes.to(device)
+        outputs = model_ft(inputs)
+        _, preds = torch.max(outputs, 1)
+        for t, p in zip(classes, preds):
+            cnn_preds = np.append(cnn_preds, p.cpu().detach().numpy())
+            cnn_true = np.append(cnn_true, t.cpu().detach().numpy())
+            
+
+# Confusion matrix
+cm_cnn = confusion_matrix(cnn_true, cnn_preds)
+cm_lr = confusion_matrix(y_test, classifier_logistic.predict(X_test))
+cm_knn = confusion_matrix(y_test, classifier_KNN.predict(X_test))
+cm_rf = confusion_matrix(y_test, classifier_RF.predict(X_test))
+
+
+confusion_matrices = [
+    ("CNN", cm_cnn),
+    ("Logistic Regression", cm_lr),
+    ("KNN", cm_knn),
+    ("Random Forest", cm_rf)
+]
+
+for element in confusion_matrices:
+    classifier, conf_matrix = element[0], element[1]
+    cal_evaluation(classifier, conf_matrix)
+    
+
+# logistic regression
+lr_y_pred_prob = classifier_logistic.predict_proba(X_test)[:,1] 
+precision_lr, recall_lr, _ = precision_recall_curve(y_test, lr_y_pred_prob)
+
+
+# KNN
+knn_y_pred_prob = classifier_KNN.predict_proba(X_test)[:,1] 
+precision_knn, recall_knn, _ = precision_recall_curve(y_test, knn_y_pred_prob)
+
+
+# random forest
+rf_y_pred_prob = classifier_RF.predict_proba(X_test)[:,1] 
+precision_rf, recall_rf, _ = precision_recall_curve(y_test, rf_y_pred_prob)
+
+
+# PR Curve
+plt.figure(figsize=(8, 6))
+plt.plot(recall_res152, precision_res152, label="ResNet152")
+plt.plot(recall_res34, precision_res34, label="ResNet34")
+plt.plot(recall_res18, precision_res18, label="ResNet18")
+plt.plot(recall_lr, precision_lr, label="LR")
+plt.plot(recall_knn, precision_knn, label="KNN")
+plt.plot(recall_rf, precision_rf, label="RF")
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.0])
+plt.legend(loc='lower right')
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.title('PR Curves')
+plt.show()
