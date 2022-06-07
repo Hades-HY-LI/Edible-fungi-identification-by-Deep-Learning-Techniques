@@ -1,0 +1,93 @@
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
+
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import GridSearchCV
+
+from sklearn.metrics import confusion_matrix
+
+from sklearn.metrics import precision_recall_curve
+
+import warnings
+warnings.filterwarnings("ignore") 
+
+
+# transform data
+transform = {
+    'train': transforms.Compose([
+        transforms.RandomResizedCrop(224),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ]),
+    'test': transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ])
+}
+
+# obtain working directory
+dataset_dir = os.getcwd() + '/data3'
+
+# create dataset
+data = {x: datasets.ImageFolder(os.path.join(dataset_dir, x), transform[x])
+                  for x in ['train', 'test']}
+                  
+                  
+# obtain train and test sets
+train = data['train']
+test = data['test']
+
+# obtain X and y in train set
+X_train = torch.stack([img_t for img_t, _ in train], dim=0)
+X_train = X_train.numpy()
+
+y_train = np.empty(0)
+y_train = np.append(y_train, [lab_t for _, lab_t in train])
+
+# obtain X and y in test set
+X_test = torch.stack([img_t for img_t, _ in test], dim=0)
+X_test = X_test.numpy()
+
+y_test = np.empty(0)
+y_test = np.append(y_test, [lab_t for _, lab_t in test])
+
+
+print(X_train.shape)
+print(X_test.shape)
+
+# reshape to 2D from 4D
+X_train = np.reshape(X_train, (X_train.shape[0], -1))
+X_test = np.reshape(X_test, (X_test.shape[0], -1))
+
+# check labels
+class_names = train.classes
+train.class_to_idx
+
+# Logistic regression
+classifier_logistic = LogisticRegression()
+classifier_logistic.fit(X_train, y_train)
+
+from sklearn.neighbors import KNeighborsClassifier
+# K Nearest Neighbors
+classifier_KNN = KNeighborsClassifier()
+classifier_KNN.fit(X_train, y_train)
+
+# Random Forest
+classifier_RF = RandomForestClassifier()
+classifier_RF.fit(X_train, y_train)
+
+# use 5-fold Cross Validation
+model_names = ['Logistic Regression','KNN','Random Forest']
+model_list = [classifier_logistic, classifier_KNN, classifier_RF]
+
+count = 0
+for classifier in model_list:
+    cv_score = cross_val_score(classifier, X_train, y_train, cv=5)
+    print(cv_score.round(3))
+    print('Model accuracy of ' + model_names[count] + ' is ' + str(cv_score.mean().round(3)))
+    count += 1
+    
