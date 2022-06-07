@@ -1,3 +1,38 @@
+# Load finetuned ResNet152 model
+
+PATH = "entire_model_net152.pt"
+
+model152_ft = torch.load(PATH)
+## model152_ft.eval()
+
+# get the predicted probabilities and the true labels from the test set
+resnet152_prob, y_test = predict_prob(model152_ft)
+precision_res152, recall_res152, _ = precision_recall_curve(y_test.numpy(), resnet152_prob.numpy()[:, 1])
+
+
+# Load finetuned ResNet34 model
+
+PATH = "entire_model_net34.pt"
+
+model34_ft = torch.load(PATH)
+
+# get the predicted probabilities and the true labels from the test set
+resnet34_prob, y_test = predict_prob(model34_ft)
+precision_res34, recall_res34, _ = precision_recall_curve(y_test.numpy(), resnet34_prob.numpy()[:, 1])
+
+
+# Load finetuned ResNet18 model
+
+PATH = "entire_model_net18.pt"
+
+model18_ft = torch.load(PATH)
+
+# get the predicted probabilities and the true labels from the test set
+resnet18_prob, y_test = predict_prob(model18_ft)
+precision_res18, recall_res18, _ = precision_recall_curve(y_test.numpy(), resnet18_prob.numpy()[:, 1])
+
+
+
 def cal_evaluation(classifier, conf_matrix):
     tn = conf_matrix[0][0]
     fp = conf_matrix[0][1]
