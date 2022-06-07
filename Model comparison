@@ -77,3 +77,21 @@ plt.ylabel('Precision')
 plt.title('PR Curves')
 plt.show()
 
+# ROC
+fpr_rf, tpr_rf, _ = roc_curve(y_test.numpy(), rf_y_pred_prob)
+# area under curve
+roc_auc_rf = auc(fpr_rf, tpr_rf)
+
+# PR Curve
+plt.figure(figsize=(8, 6))
+plt.plot(recall_lr, precision_lr, label="LR")
+plt.plot(recall_knn, precision_knn, label="KNN")
+plt.plot(recall_rf, precision_rf, label="RF")
+
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.0])
+plt.legend(loc='lower right')
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.title('PR Curves')
+plt.show()
