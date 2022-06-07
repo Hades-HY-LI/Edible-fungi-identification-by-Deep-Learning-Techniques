@@ -1,3 +1,31 @@
+# get probability instead of prediction from the model
+# Reference: https://stackoverflow.com/questions/60182984/how-to-get-the-predict-probability
+def predict_prob(model_ft, phase="test"):
+    """
+    given a pytorch model (model_ft), calculate probability for each class assignment (a torch tensor object)
+
+    Arguments
+    ---------
+    model_ft:     pytorch model from torchvision
+
+
+    phase:        get the confusion matrix for 'test' or 'validation'
+    """
+    import torch.nn.functional as nnf
+    prob_predict = []
+    targets = []
+
+    with torch.no_grad():
+        for i, (inputs, classes) in enumerate(dataloaders[phase]):
+            inputs = inputs.to(device)
+            classes = classes.to(device)
+            outputs = model_ft(inputs)
+            prob = nnf.softmax(outputs, dim=1)
+            prob_predict.append(prob)
+            targets.append(classes)
+
+    return torch.vstack(prob_predict), torch.hstack(targets)
+
 # Load finetuned ResNet152 model
 
 PATH = "entire_model_net152.pt"
