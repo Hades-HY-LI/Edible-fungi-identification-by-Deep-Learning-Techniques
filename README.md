@@ -1,5 +1,12 @@
 # Edible-fungi-identification
+
+### Description
+
 It's a project about identification of edible/non-edible fungi by by leveraging the power of pre-trained computer vision models ResNet.
+
+### Contributors
+
+Yige Luo, Jibo Shen, Ming Zhao, and Hongye Li
 
 
 Follow these steps in the **Code** file to reproduce the results of the project:
